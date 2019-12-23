@@ -29,7 +29,14 @@
                             <outlet property="delegate" destination="6iP-oo-k2G" id="VMC-T5-3ck"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="StrikeIt" id="S21-Lk-gJD"/>
+                    <navigationItem key="navigationItem" title="StrikeIt" id="S21-Lk-gJD">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="AuD-yS-Cnl">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <connections>
+                                <action selector="addButtonPressed:" destination="6iP-oo-k2G" id="tem-1C-wu7"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CvX-Bz-hhx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
