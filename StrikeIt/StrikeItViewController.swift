@@ -10,11 +10,20 @@ import UIKit
 
 class StrikeItViewController: UITableViewController {
     
+    //Persisting Data Step 1
+    
+    let defaults = UserDefaults.standard
+    
     var itemArray = ["1", "2", "3"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //Persisting Data Step 3
+        if let items = UserDefaults.standard.array(forKey: "StrikeItArray") as? [String] {
+            itemArray = items
+        }
+          tableView.reloadData()
     }
     
     //MARK - TableView Datasource Methods
@@ -57,10 +66,14 @@ class StrikeItViewController: UITableViewController {
         
         let alert = UIAlertController(title: "Add New Items", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            
+            //Persisting Data Step 2
+            self.defaults.set(self.itemArray, forKey: "StrikeItArray")
+            
             self.itemArray.append(textField.text!)
             self.tableView.reloadData()
         }
-
+        
         alert.addAction(action)
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create New Item"
@@ -69,6 +82,6 @@ class StrikeItViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         
     }
-        
+    
 }
-   
+
