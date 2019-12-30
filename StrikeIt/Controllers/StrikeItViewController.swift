@@ -14,16 +14,30 @@ class StrikeItViewController: UITableViewController {
     
     let defaults = UserDefaults.standard
     
-    var itemArray = ["1", "2", "3"]
+    //We Made a class "Item" that contains a String & Bool properties
+    var itemArray = [Item]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //Hard coding the Array into the Cells
+        let newItem = Item()
+        newItem.title = "Simba"
+        itemArray.append(newItem)
+        
+        let newItem2 = Item()
+        newItem2.title = "is"
+        itemArray.append(newItem2)
+        
+        let newItem3 = Item()
+        newItem3.title = "a Blimpa"
+        itemArray.append(newItem3)
+        
         //Persisting Data Step 3
-        if let items = UserDefaults.standard.array(forKey: "StrikeItArray") as? [String] {
+        if let items = UserDefaults.standard.array(forKey: "StrikeItArray") as? [Item] {
             itemArray = items
         }
-          tableView.reloadData()
+        tableView.reloadData()
     }
     
     //MARK - TableView Datasource Methods
@@ -38,7 +52,15 @@ class StrikeItViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        
+        let item = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = item.title
+        
+        //Ternary Operator ==>
+        //value = condition ? valueIfTrue : valueIfFalse
+        cell.accessoryType = item.done ? .checkmark : .none
+        
         
         return cell
     }
@@ -50,12 +72,11 @@ class StrikeItViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }
-        else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        //let the item be the opposite Bool
+        let item = itemArray[indexPath.row]
+        item.done = !item.done
+        
+        tableView.reloadData()
     }
     
     //MARK - Add New Items
@@ -67,10 +88,14 @@ class StrikeItViewController: UITableViewController {
         let alert = UIAlertController(title: "Add New Items", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
+            //creating a new item using the class Item and setting it's title property
+            let newItem = Item()
+            newItem.title = textField.text!
+            self.itemArray.append(newItem)
+            
             //Persisting Data Step 2
             self.defaults.set(self.itemArray, forKey: "StrikeItArray")
             
-            self.itemArray.append(textField.text!)
             self.tableView.reloadData()
         }
         
