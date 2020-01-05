@@ -11,8 +11,10 @@ import UIKit
 class StrikeItViewController: UITableViewController {
     
     //Persisting Data Step 1
+    //    let defaults = UserDefaults.standard
     
-    let defaults = UserDefaults.standard
+    //Encoding Data with NSCoder Step 1
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     //We Made a class "Item" that contains a String & Bool properties
     var itemArray = [Item]()
@@ -20,24 +22,15 @@ class StrikeItViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Hard coding the Array into the Cells
-        let newItem = Item()
-        newItem.title = "Simba"
-        itemArray.append(newItem)
-        
-        let newItem2 = Item()
-        newItem2.title = "is"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "a Blimpa"
-        itemArray.append(newItem3)
+        //print(dataFilePath)
         
         //Persisting Data Step 3
-        if let items = UserDefaults.standard.array(forKey: "StrikeItArray") as? [Item] {
-            itemArray = items
-        }
+        //        if let items = UserDefaults.standard.array(forKey: "StrikeItArray") as? [Item] {
+        //            itemArray = items
+        //        }
+        
         tableView.reloadData()
+        loadItems()
     }
     
     //MARK - TableView Datasource Methods
@@ -75,8 +68,8 @@ class StrikeItViewController: UITableViewController {
         //let the item be the opposite Bool
         let item = itemArray[indexPath.row]
         item.done = !item.done
-        
-        tableView.reloadData()
+        //Encoding Data with NSCoder Step 3
+        saveItems()
     }
     
     //MARK - Add New Items
@@ -92,11 +85,10 @@ class StrikeItViewController: UITableViewController {
             let newItem = Item()
             newItem.title = textField.text!
             self.itemArray.append(newItem)
-            
+            //Encoding Data with NSCoder Step 3
+            self.saveItems()
             //Persisting Data Step 2
-            self.defaults.set(self.itemArray, forKey: "StrikeItArray")
-            
-            self.tableView.reloadData()
+            //            self.defaults.set(self.itemArray, forKey: "StrikeItArray")
         }
         
         alert.addAction(action)
@@ -107,6 +99,33 @@ class StrikeItViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         
     }
+    //MARK - Model Manipulation Methods
+    
+    //Encoding Data with NSCoder Step 2
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("Error")
+        }
+        tableView.reloadData()
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error")
+            }
+        }
+        
+    }
+    
     
 }
 
