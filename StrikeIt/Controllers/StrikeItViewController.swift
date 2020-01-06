@@ -7,27 +7,21 @@
 //
 
 import UIKit
+//Encoding Data with Core Data Step 1
+import CoreData
 
 class StrikeItViewController: UITableViewController {
-    
-    //Persisting Data Step 1
-    //    let defaults = UserDefaults.standard
-    
-    //Encoding Data with NSCoder Step 1
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     //We Made a class "Item" that contains a String & Bool properties
     var itemArray = [Item]()
     
+    //configuring CoreData - Create
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //print(dataFilePath)
-        
-        //Persisting Data Step 3
-        //        if let items = UserDefaults.standard.array(forKey: "StrikeItArray") as? [Item] {
-        //            itemArray = items
-        //        }
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
         tableView.reloadData()
         loadItems()
@@ -58,7 +52,7 @@ class StrikeItViewController: UITableViewController {
         return cell
     }
     
-    //MARK - TableView Delegate Methods
+    //MARK: - TableView Delegate Methods
     
     //adding the checkmark
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -66,13 +60,16 @@ class StrikeItViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         
         //let the item be the opposite Bool
-        let item = itemArray[indexPath.row]
-        item.done = !item.done
-        //Encoding Data with NSCoder Step 3
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+        //        context.delete(itemArray[indexPath.row])
+        //        itemArray.remove(at: indexPath.row)
+        
+        //Saving Data to the context
         saveItems()
     }
     
-    //MARK - Add New Items
+    //MARK: - Add New Items
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
@@ -81,12 +78,18 @@ class StrikeItViewController: UITableViewController {
         let alert = UIAlertController(title: "Add New Items", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            //creating a new item using the class Item and setting it's title property
-            let newItem = Item()
+            //configuring CoreData
+            let newItem = Item(context: self.context)
+            
             newItem.title = textField.text!
             self.itemArray.append(newItem)
+            
+            //Encoding Data with Core Data Step 3
+            newItem.done = false
+            
             //Encoding Data with NSCoder Step 3
             self.saveItems()
+            
             //Persisting Data Step 2
             //            self.defaults.set(self.itemArray, forKey: "StrikeItArray")
         }
@@ -99,33 +102,58 @@ class StrikeItViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         
     }
-    //MARK - Model Manipulation Methods
+    //MARK: - Model Manipulation Methods
     
-    //Encoding Data with NSCoder Step 2
+    //Encoding Data with Core Data Step 2
     func saveItems() {
-        let encoder = PropertyListEncoder()
         
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         } catch {
-            print("Error")
+            print("Error saving contexts \(error)")
         }
         tableView.reloadData()
     }
     
-    func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Error")
-            }
+    //Reading Data from Core Data - Read in CURD
+    func loadItems(with request : NSFetchRequest<Item> = Item.fetchRequest()) {
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from Context \(error)")
         }
-        
+        tableView.reloadData()
     }
-    
-    
 }
 
+//MARK: - Search Bar Methods
+
+extension StrikeItViewController: UISearchBarDelegate {
+    
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        //Creating a New request
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        print(searchBar.text!)
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.predicate = predicate
+        
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        
+        //Pass the request over the loaditems function
+        loadItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+    
+}
