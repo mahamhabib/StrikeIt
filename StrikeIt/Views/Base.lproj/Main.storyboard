@@ -95,7 +95,7 @@
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="iZb-8z-6Jt" id="BaO-dj-kgk"/>
-                            <outlet property="delegate" destination="iZb-8z-6Jt" id="mmF-hN-w7f"/>
+                            <outlet property="delegate" destination="iZb-8z-6Jt" id="R1N-Fk-1aJ"/>
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="StrikeIt" id="SHA-8F-27m">

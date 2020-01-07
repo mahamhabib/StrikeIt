@@ -15,23 +15,27 @@ class StrikeItViewController: UITableViewController {
     //We Made a class "Item" that contains a String & Bool properties
     var itemArray = [Item]()
     
+    var selectedCategory : Category? {
+        didSet {
+            loadItems()
+        }
+    }
+    
     //configuring CoreData - Create
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        loadItems()
         
         tableView.reloadData()
-        loadItems()
     }
     
-    //MARK - TableView Datasource Methods
+    //MARK: - TableView Datasource Methods
     
     //Counts the items in the array
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
         return itemArray.count
     }
     
@@ -78,14 +82,13 @@ class StrikeItViewController: UITableViewController {
         let alert = UIAlertController(title: "Add New Items", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            //configuring CoreData
             let newItem = Item(context: self.context)
             
             newItem.title = textField.text!
             self.itemArray.append(newItem)
-            
-            //Encoding Data with Core Data Step 3
             newItem.done = false
+            newItem.parentCategory = self.selectedCategory
+            
             
             //Encoding Data with NSCoder Step 3
             self.saveItems()
@@ -116,7 +119,16 @@ class StrikeItViewController: UITableViewController {
     }
     
     //Reading Data from Core Data - Read in CURD
-    func loadItems(with request : NSFetchRequest<Item> = Item.fetchRequest()) {
+    func loadItems(with request : NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        
+        let catergoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        if let addtionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [catergoryPredicate, addtionalPredicate])
+        } else {
+            request.predicate = catergoryPredicate
+        }
+        
         do {
             itemArray = try context.fetch(request)
         } catch {
@@ -135,15 +147,14 @@ extension StrikeItViewController: UISearchBarDelegate {
         
         //Creating a New request
         let request : NSFetchRequest<Item> = Item.fetchRequest()
-        print(searchBar.text!)
+        
         let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        request.predicate = predicate
         
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
         request.sortDescriptors = [sortDescriptor]
         
         //Pass the request over the loaditems function
-        loadItems(with: request)
+        loadItems(with: request, predicate: predicate )
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
