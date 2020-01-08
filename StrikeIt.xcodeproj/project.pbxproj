@@ -3,11 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1DAC2571C6BB2164754AE7A0 /* Pods_StrikeIt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB0254D03F7535E1C6062C8C /* Pods_StrikeIt.framework */; };
+		61CFDCBE23C5CB6C00A935EA /* RealmItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61CFDCBD23C5CB6C00A935EA /* RealmItem.swift */; };
+		61CFDCC023C5CB9000A935EA /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61CFDCBF23C5CB9000A935EA /* Category.swift */; };
 		61D74BEC23C3732E00035634 /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D74BEB23C3732E00035634 /* CategoryViewController.swift */; };
 		61E5232623AFEE5E00A6BF7F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E5232523AFEE5E00A6BF7F /* AppDelegate.swift */; };
 		61E5232823AFEE5E00A6BF7F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61E5232723AFEE5E00A6BF7F /* SceneDelegate.swift */; };
@@ -15,11 +17,12 @@
 		61E5232D23AFEE5E00A6BF7F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 61E5232B23AFEE5E00A6BF7F /* Main.storyboard */; };
 		61E5232F23AFEE5F00A6BF7F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 61E5232E23AFEE5F00A6BF7F /* Assets.xcassets */; };
 		61E5233223AFEE5F00A6BF7F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 61E5233023AFEE5F00A6BF7F /* LaunchScreen.storyboard */; };
-		61F66F0A23C21D9A00E5959E /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 61F66F0823C21D9A00E5959E /* DataModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1B6C27FDF55AA1CB42EFB173 /* Pods-StrikeIt.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StrikeIt.debug.xcconfig"; path = "Target Support Files/Pods-StrikeIt/Pods-StrikeIt.debug.xcconfig"; sourceTree = "<group>"; };
+		61CFDCBD23C5CB6C00A935EA /* RealmItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmItem.swift; sourceTree = "<group>"; };
+		61CFDCBF23C5CB9000A935EA /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		61D74BEB23C3732E00035634 /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
 		61E5232223AFEE5E00A6BF7F /* StrikeIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StrikeIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		61E5232523AFEE5E00A6BF7F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -29,7 +32,6 @@
 		61E5232E23AFEE5F00A6BF7F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		61E5233123AFEE5F00A6BF7F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		61E5233323AFEE5F00A6BF7F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		61F66F0923C21D9A00E5959E /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
 		DA46EEEA654C352F08B282F6 /* Pods-StrikeIt.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StrikeIt.release.xcconfig"; path = "Target Support Files/Pods-StrikeIt/Pods-StrikeIt.release.xcconfig"; sourceTree = "<group>"; };
 		DB0254D03F7535E1C6062C8C /* Pods_StrikeIt.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_StrikeIt.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -52,14 +54,14 @@
 				1B6C27FDF55AA1CB42EFB173 /* Pods-StrikeIt.debug.xcconfig */,
 				DA46EEEA654C352F08B282F6 /* Pods-StrikeIt.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
 		6139978223BA0C2B007C2D80 /* Data Model */ = {
 			isa = PBXGroup;
 			children = (
-				61F66F0823C21D9A00E5959E /* DataModel.xcdatamodeld */,
+				61CFDCBF23C5CB9000A935EA /* Category.swift */,
+				61CFDCBD23C5CB6C00A935EA /* RealmItem.swift */,
 			);
 			path = "Data Model";
 			sourceTree = "<group>";
@@ -246,10 +248,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				61D74BEC23C3732E00035634 /* CategoryViewController.swift in Sources */,
-				61F66F0A23C21D9A00E5959E /* DataModel.xcdatamodeld in Sources */,
 				61E5232A23AFEE5E00A6BF7F /* StrikeItViewController.swift in Sources */,
 				61E5232623AFEE5E00A6BF7F /* AppDelegate.swift in Sources */,
+				61CFDCBE23C5CB6C00A935EA /* RealmItem.swift in Sources */,
 				61E5232823AFEE5E00A6BF7F /* SceneDelegate.swift in Sources */,
+				61CFDCC023C5CB9000A935EA /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -449,19 +452,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		61F66F0823C21D9A00E5959E /* DataModel.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				61F66F0923C21D9A00E5959E /* DataModel.xcdatamodel */,
-			);
-			currentVersion = 61F66F0923C21D9A00E5959E /* DataModel.xcdatamodel */;
-			path = DataModel.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 61E5231A23AFEE5E00A6BF7F /* Project object */;
 }

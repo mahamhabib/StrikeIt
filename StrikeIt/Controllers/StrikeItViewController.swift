@@ -8,12 +8,15 @@
 
 import UIKit
 //Encoding Data with Core Data Step 1
-import CoreData
+import RealmSwift
 
 class StrikeItViewController: UITableViewController {
     
-    //We Made a class "Item" that contains a String & Bool properties
-    var itemArray = [Item]()
+// we intialize Realm
+    
+    let realm = try! Realm()
+    var todoItems: Results<RealmItem>?
+
     
     var selectedCategory : Category? {
         didSet {
@@ -21,14 +24,9 @@ class StrikeItViewController: UITableViewController {
         }
     }
     
-    //configuring CoreData - Create
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        loadItems()
-        
+                
         tableView.reloadData()
     }
     
@@ -36,7 +34,7 @@ class StrikeItViewController: UITableViewController {
     
     //Counts the items in the array
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemArray.count
+        return todoItems?.count ?? 1
     }
     
     //appends the array to the table cells
@@ -44,14 +42,14 @@ class StrikeItViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        let item = itemArray[indexPath.row]
-        
-        cell.textLabel?.text = item.title
-        
-        //Ternary Operator ==>
-        //value = condition ? valueIfTrue : valueIfFalse
-        cell.accessoryType = item.done ? .checkmark : .none
-        
+        if let item = todoItems?[indexPath.row] {
+            cell.textLabel?.text = item.title
+            //Ternary Operator ==>
+            //value = condition ? valueIfTrue : valueIfFalse
+            cell.accessoryType = item.done ? .checkmark : .none
+        } else {
+            cell.textLabel?.text = "No Items Added Yet"
+        }
         
         return cell
     }
@@ -63,14 +61,16 @@ class StrikeItViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        //let the item be the opposite Bool
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        
-        //        context.delete(itemArray[indexPath.row])
-        //        itemArray.remove(at: indexPath.row)
-        
-        //Saving Data to the context
-        saveItems()
+        if let item = todoItems?[indexPath.row] {
+            do {
+                try realm.write {
+                    item.done = !item.done
+                }
+            } catch {
+                print("error updating done to Items \(error)")
+            }
+        }
+        tableView.reloadData()
     }
     
     //MARK: - Add New Items
@@ -82,19 +82,20 @@ class StrikeItViewController: UITableViewController {
         let alert = UIAlertController(title: "Add New Items", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             
-            let newItem = Item(context: self.context)
-            
-            newItem.title = textField.text!
-            self.itemArray.append(newItem)
-            newItem.done = false
-            newItem.parentCategory = self.selectedCategory
-            
-            
-            //Encoding Data with NSCoder Step 3
-            self.saveItems()
-            
-            //Persisting Data Step 2
-            //            self.defaults.set(self.itemArray, forKey: "StrikeItArray")
+            if let currentCategory = self.selectedCategory {
+                do {
+                    try self.realm.write {
+                        let newItem = RealmItem()
+                        newItem.title = textField.text!
+                        newItem.dateCreated = Date()
+                        currentCategory.items.append(newItem)
+                    }
+                } catch {
+                    print("error appending the items \(error)")
+                }
+                
+            }
+            self.tableView.reloadData()
         }
         
         alert.addAction(action)
@@ -105,66 +106,37 @@ class StrikeItViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
         
     }
+    
+    
     //MARK: - Model Manipulation Methods
     
-    //Encoding Data with Core Data Step 2
-    func saveItems() {
-        
-        do {
-            try context.save()
-        } catch {
-            print("Error saving contexts \(error)")
-        }
+    func loadItems() {
+        todoItems = selectedCategory?.items.sorted(byKeyPath: "title")
+//        , ascending: true)
         tableView.reloadData()
-    }
-    
-    //Reading Data from Core Data - Read in CURD
-    func loadItems(with request : NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
         
-        let catergoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-        
-        if let addtionalPredicate = predicate {
-            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [catergoryPredicate, addtionalPredicate])
-        } else {
-            request.predicate = catergoryPredicate
         }
-        
-        do {
-            itemArray = try context.fetch(request)
-        } catch {
-            print("Error fetching data from Context \(error)")
-        }
-        tableView.reloadData()
     }
-}
+    //MARK: - Search Bar Methods
 
-//MARK: - Search Bar Methods
+    extension StrikeItViewController: UISearchBarDelegate {
 
-extension StrikeItViewController: UISearchBarDelegate {
-    
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        //Creating a New request
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
-        
-        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        
-        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-        request.sortDescriptors = [sortDescriptor]
-        
-        //Pass the request over the loaditems function
-        loadItems(with: request, predicate: predicate )
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchBar.text?.count == 0 {
-            loadItems()
+        func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+            todoItems = todoItems?.filter("title CONTAINS [cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
             
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
+            tableView.reloadData()
+        }
+
+        func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+            if searchBar.text?.count == 0 {
+                loadItems()
+
+                DispatchQueue.main.async {
+                    searchBar.resignFirstResponder()
+                }
             }
         }
     }
-    
-}
+
+
+
